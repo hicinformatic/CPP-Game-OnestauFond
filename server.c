@@ -31,7 +31,7 @@ const char* errPort    = "Impossible d'ouvrir un socket sur le port: ";
 const char* errBind    = "Bind impossible!";
 
 int Start();
-int addPort(int port);
+void *addPort(void *);
 
 
 void msg(int type, const char *msg)
@@ -124,17 +124,22 @@ int Start()
         {
             msg(2, errEnd);
         }else{
-            int portThreads = end - port;
+            int noThreads = 0;
+            int portThreads = end - port + 1;
+            pthread_t threadA[portThreads];
+
             msg(0, msgEnd);
             char nbr[15];
-            sprintf(nbr, "  n Port: %d", portThreads+1);
+            sprintf(nbr, "  n Port: %d", portThreads);
             msg(0, nbr);
 
-            pthread_t threadA[portThreads];
-            for(int p=port; p<=end; ++p)
+            while (noThreads < portThreads)
             {
-                addPort(p);
+                int p = port + noThreads;
+                noThreads++;
+                // pthread_create(&threadA[noThreads], NULL, addPort, ); 
             }
+
         }
     }else{
         msg(0, msgPort);
@@ -142,7 +147,7 @@ int Start()
     }
 }
 
-int addPort(int port)
+void *addPort(void *port)
 {
     char cp[15];
     sprintf(cp, "  + Port: %d", port);
@@ -170,5 +175,7 @@ int addPort(int port)
         return 0;
     }
     listen(listenFd, 5);
+
+    socklen_t len;
     len = sizeof(clntAdd);
 }
